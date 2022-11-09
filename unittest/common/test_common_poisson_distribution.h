@@ -1,0 +1,6 @@
+#ifndef INCLUDED_TEST_COMMON_POISSON_DISTRIBUTION_H
+#define INCLUDED_TEST_COMMON_POISSON_DISTRIBUTION_H
+
+void testPoissonDistribution();
+
+#endif
