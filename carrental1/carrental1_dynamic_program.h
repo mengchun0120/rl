@@ -4,6 +4,7 @@
 #include <vector>
 #include <common_poisson_distribution.h>
 #include <carrental1_params.h>
+#include <carrental1_typedef.h>
 
 namespace carrental1 {
 
@@ -12,6 +13,10 @@ public:
     DynamicProgram(const Params& params);
 
     void run();
+
+    inline const ValueTable& values() const;
+
+    inline const ActionTable& policy() const;
 
 private:
     void initDistributions();
@@ -30,10 +35,20 @@ private:
     const Params& params_;
     common::PoissonDistribution reqDis1_, retDis1_;
     common::PoissonDistribution reqDis2_, retDis2_;
-    std::vector<std::vector<double>> values_;
-    std::vector<std::vector<int>> policy_;
+    ValueTable values_;
+    ActionTable policy_;
     bool running_;
 };
+
+const ValueTable& DynamicProgram::values() const
+{
+    return values_;
+}
+
+const ActionTable& DynamicProgram::policy() const
+{
+    return policy_;
+}
 
 } // end of namespace carrental1
 

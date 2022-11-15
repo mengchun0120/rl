@@ -1,9 +1,13 @@
 #ifndef INCLUDED_CARRENTAL1_PARAMS_H
 #define INCLUDED_CARRENTAL1_PARAMS_H
 
+#include <string>
+
 namespace carrental1 {
 
 struct Params {
+    Params(const std::string& paramFile);
+
     int maxCars1_;
     int maxCars2_;
     int maxCarMoved_;
@@ -16,7 +20,6 @@ struct Params {
     double lambdaRequest2_;
     double lambdaReturn2_;
 };
-
 
 } // end of namespace carrental1
 

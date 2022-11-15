@@ -1,5 +1,10 @@
+#include <cmath>
+#include <iostream>
 #include <algorithm>
+#include <common_log.h>
 #include <carrental1_dynamic_program.h>
+
+using namespace common;
 
 namespace carrental1 {
 
@@ -13,11 +18,18 @@ DynamicProgram::DynamicProgram(const Params& params)
 
 void DynamicProgram::run()
 {
-    while (running_)
+    LOG_INFO << "Starting to run" << LOG_END;
+
+    for (int i = 0; running_; ++i)
     {
+        std::cout << "Iteration " << i << std::endl;
+        LOG_INFO << "Iteration " << i << LOG_END;
+
         runPolicyEvaluation();
         runPolicyImprovement();
     }
+
+    LOG_INFO << "Finished" << LOG_END;
 }
 
 void DynamicProgram::initDistributions()
@@ -41,7 +53,7 @@ void DynamicProgram::initValues()
 void DynamicProgram::initPolicy()
 {
     policy_.resize(params_.maxCars1_ + 1);
-    for (auto it = values_.begin(); it != values_.end(); ++it)
+    for (auto it = policy_.begin(); it != policy_.end(); ++it)
     {
         it->resize(params_.maxCars2_ + 1);
         std::fill(it->begin(), it->end(), 0.0);
@@ -60,7 +72,13 @@ void DynamicProgram::runPolicyEvaluation()
             for (int cars2 = 0; cars2 <= params_.maxCars2_; ++cars2)
             {
                 newValue = q(cars1, cars2, policy_[cars1][cars2]);
-                delta = abs(newValue - values_[cars1][cars2]);
+                delta = fabs(newValue - values_[cars1][cars2]);
+
+                LOG_DEBUG << "Evaluation cars1=" << cars1 << " cars2=" << cars2
+                         << " oldValue=" << values_[cars1][cars2]
+                         << " newValue=" << newValue << " delta=" << delta
+                         << LOG_END;
+
                 values_[cars1][cars2] = newValue;
                 if (delta > maxDelta)
                 {
@@ -68,6 +86,9 @@ void DynamicProgram::runPolicyEvaluation()
                 }
             }
         }
+
+        LOG_INFO << "Evaluation maxDelta=" << maxDelta << LOG_END;
+
     } while(maxDelta > params_.epsilon_);
 }
 
@@ -80,11 +101,11 @@ void DynamicProgram::runPolicyImprovement()
         for (int cars2 = 0; cars2 <= params_.maxCars2_; ++cars2)
         {
             int carsMoved = -std::min(cars2, params_.maxCarMoved_);
-            int maxAction = std::min(cars1, params_.maxCarMoved_);
+            int maxCarMoved = std::min(cars1, params_.maxCarMoved_);
             int bestAction = carsMoved;
             double bestValue = q(cars1, cars2, carsMoved);
 
-            for (++carsMoved; carsMoved <= cars1; ++carsMoved)
+            for (++carsMoved; carsMoved <= maxCarMoved; ++carsMoved)
             {
                 double value = q(cars1, cars2, carsMoved);
                 if (value > bestValue)
@@ -96,8 +117,11 @@ void DynamicProgram::runPolicyImprovement()
 
             if (bestAction != policy_[cars1][cars2])
             {
+                LOG_INFO << "Improve cars1=" << cars1 << " cars2=" << cars2
+                         << " newAction=" << bestAction << LOG_END;
+
                 stable = false;
-                policy_[cars1][cars2] = maxAction;
+                policy_[cars1][cars2] = bestAction;
             }
         }
     }
@@ -110,7 +134,7 @@ void DynamicProgram::runPolicyImprovement()
 
 double DynamicProgram::q(int cars1, int cars2, int carsMoved)
 {
-    double cost = abs(carsMoved) * params_.costPerCarMoved_;
+    double cost = fabs(carsMoved) * params_.costPerCarMoved_;
     double reward, newValue = 0.0;
     double p1, p2, p3, p4;
     int req1, ret1, req2, ret2;
@@ -127,8 +151,7 @@ double DynamicProgram::q(int cars1, int cars2, int carsMoved)
         p2 = p1 * retDis1_(0);
         for (ret1 = 0; p2 > params_.epsilon_; p2 = p1 * retDis1_(++ret1))
         {
-            newCars1 = std::min(left1 - rent1 + ret1,
-                                params_.maxCars1_);
+            newCars1 = std::min(left1 - rent1 + ret1, params_.maxCars1_);
             p3 = p2 * reqDis2_(0);
             for (req2 = 0; p3 > params_.epsilon_; p3 = p2 * reqDis2_(++req2))
             {
@@ -137,8 +160,7 @@ double DynamicProgram::q(int cars1, int cars2, int carsMoved)
                 p4 = p3 * retDis2_(0);
                 for (ret2 = 0; p4 > params_.epsilon_; p4 = p3 * retDis2_(++ret2))
                 {
-                    newCars2 = std::min(left2 - rent2 + ret2,
-                                        params_.maxCars2_);
+                    newCars2 = std::min(left2 - rent2 + ret2, params_.maxCars2_);
                     newValue += p4 * (reward - cost +
                                       params_.discount_ * values_[newCars1][newCars2]);
                 }

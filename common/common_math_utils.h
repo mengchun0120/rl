@@ -9,7 +9,7 @@ inline bool fuzzyEqual(double a,
                        double b,
                        double threshold=1e-10)
 {
-    return std::abs(a-b) <= threshold;
+    return fabs(a-b) <= threshold;
 }
 
 } // end of namespace common

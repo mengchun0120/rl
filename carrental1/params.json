@@ -1,0 +1,13 @@
+{
+    "maxCars1": 20,
+    "maxCars2": 20,
+    "maxCarMoved": 5,
+    "rewardPerCarRented": 10.0,
+    "costPerCarMoved": 2.0,
+    "discount": 0.9,
+    "epsilon": 0.00000000001,
+    "lambdaRequest1": 3.0,
+    "lambdaReturn1": 3.0,
+    "lambdaRequest2": 4.0,
+    "lambdaReturn2": 2.0
+}

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(CPP_COMPILE_FLAG "-g -Wall")
-
 set(CARRENTAL1_SRC
-    carrental1_params.cpp
     carrental1_dynamic_program.cpp
-    carrental1_main.cpp)
+    carrental1_main.cpp
+    carrental1_params.cpp
+    carrental1_typedef.cpp
+    carrental1_utils.cpp)
 
 add_definitions(${CPP_COMPILE_FLAG})
 
